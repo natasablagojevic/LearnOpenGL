@@ -74,9 +74,7 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    // TODO 01: Turn on Blending
     // build and compile shaders
     // -------------------------
     Shader shader("3.2.blending.vs", "3.2.blending.fs");
@@ -220,12 +218,8 @@ int main()
 
         // sort the transparent windows before rendering
         // ---------------------------------------------
-        std::map<float, glm::vec3> sorted;
-        for (unsigned int i = 0; i < windows.size(); i++)
-        {
-            float distance = glm::length(camera.Position - windows[i]);
-            sorted[distance] = windows[i];
-        }
+        // sort the vectors
+        // TODO 02: sort the positions transparet objects
 
         // render
         // ------
@@ -259,13 +253,8 @@ int main()
         // windows (from furthest to nearest)
         glBindVertexArray(transparentVAO);
         glBindTexture(GL_TEXTURE_2D, transparentTexture);
-        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, it->second);
-            shader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
+
+        // TODO 03: Render them in sorted order from furthest to nearest
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
