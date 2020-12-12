@@ -3,5 +3,5 @@ out vec4 FragColor;
 
 void main()
 {
-    // TODO object outline color
+    // TODO 01: object outline color
 }
