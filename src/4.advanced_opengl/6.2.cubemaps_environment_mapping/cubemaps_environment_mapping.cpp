@@ -209,7 +209,7 @@ int main()
     // shader configuration
     // --------------------
     shader.use();
-    shader.setInt("skybox", 0);
+    // TODO: bind cubebox texture
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -241,11 +241,11 @@ int main()
         shader.setMat4("model", model);
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
-        shader.setVec3("cameraPos", camera.Position);
+        // TODO: pass camera position
         // cubes
         glBindVertexArray(cubeVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        // TODO: activate cubebox texture
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
