@@ -1,12 +1,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <learnopengl/filesystem.h>
-#include <learnopengl/shader.h>
+#include <learnopengl/shader_s.h>
 
 #include <iostream>
+#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow *window);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -35,6 +36,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -44,46 +46,57 @@ int main()
         return -1;
     }
 
-    // configure global opengl state
-    // -----------------------------
-    glEnable(GL_DEPTH_TEST);
-
-    // build and compile shaders
-    // -------------------------
-    Shader shader("9.1.geometry_shader.vs", "9.1.geometry_shader.fs", "9.1.geometry_shader.gs");
+    // build and compile our shader program
+    // ------------------------------------
+    Shader ourShader("7.2.frag_coord_shader.vs", "7.2.frag_coord_shader.fs"); // you can name your shader files however you like
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float points[] = {
-        -0.5f,  0.5f,
-         0.5f,  0.5f,
-         0.5f, -0.5f,
-        -0.5f, -0.5f
+    float vertices[] = {
+        // positions
+         0.2f, -0.2f, 0.0f,
+        -0.4f, -0.4f, 0.0f,
+         0.0f,  0.0f, 0.0f,
     };
-    unsigned int VBO, VAO;
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
 
-    glBindVertexArray(0);
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
+    // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+    // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+    // glBindVertexArray(0);
+    glEnable(GL_PROGRAM_POINT_SIZE);
 
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+        // input
+        // -----
+        processInput(window);
+
         // render
         // ------
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw points
-        shader.use();
+        // render the triangle
+        ourShader.use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, 4);
+
+        ourShader.setFloat("pointSize",  80.0);
+        glDrawArrays(GL_POINTS, 0, 3);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -96,8 +109,18 @@ int main()
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
+    // glfw: terminate, clearing all previously allocated GLFW resources.
+    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
+}
+
+// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// ---------------------------------------------------------------------------------------------------------
+void processInput(GLFWwindow *window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

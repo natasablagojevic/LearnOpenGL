@@ -50,15 +50,17 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader shader("9.1.geometry_shader.vs", "9.1.geometry_shader.fs", "9.1.geometry_shader.gs");
+    Shader shader("9.0.geometry_shader.vs", "9.0.geometry_shader.fs",
+                  "9.0.geometry_shader.gs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float points[] = {
-        -0.5f,  0.5f,
-         0.5f,  0.5f,
-         0.5f, -0.5f,
-        -0.5f, -0.5f
+            // position NDC,  color
+            -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // top-left
+            0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // top-right
+            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // bottom-right
+            -0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // bottom-left
     };
     unsigned int VBO, VAO;
     glGenBuffers(1, &VBO);
@@ -68,9 +70,12 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
     glBindVertexArray(0);
 
+
+    glLineWidth(2.0);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -104,7 +109,7 @@ int main()
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }

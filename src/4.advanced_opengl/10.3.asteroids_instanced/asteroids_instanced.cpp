@@ -55,6 +55,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -86,7 +87,7 @@ int main()
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 100000;
+    unsigned int amount = 1000000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(glfwGetTime()); // initialize random seed	
@@ -119,37 +120,9 @@ int main()
 
     // configure instanced array
     // -------------------------
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+    // TODO 02: Configure instanced arraay
 
-    // set transformation matrices as an instance vertex attribute (with divisor 1)
-    // note: we're cheating a little by taking the, now publicly declared, VAO of the model's mesh(es) and adding new vertexAttribPointers
-    // normally you'd want to do this in a more organized fashion, but for learning purposes this will do.
-    // -----------------------------------------------------------------------------------------------------------------------------------
-    for (unsigned int i = 0; i < rock.meshes.size(); i++)
-    {
-        unsigned int VAO = rock.meshes[i].VAO;
-        glBindVertexArray(VAO);
-        // set attribute pointers for matrix (4 times vec4)
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-        glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-        glVertexAttribDivisor(3, 1);
-        glVertexAttribDivisor(4, 1);
-        glVertexAttribDivisor(5, 1);
-        glVertexAttribDivisor(6, 1);
-
-        glBindVertexArray(0);
-    }
-
+    float lastDisplayed = 0;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -159,12 +132,15 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
+        if (currentFrame - lastDisplayed > 1.0f) {
+            std::cout << "\r\r" << deltaTime * 1000 << "ms" << std::flush;
+            lastDisplayed = currentFrame;
+        }
         // input
         // -----
         processInput(window);
 
-        // render
+        // render/
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,16 +163,7 @@ int main()
         planet.Draw(planetShader);
 
         // draw meteorites
-        asteroidShader.use();
-        asteroidShader.setInt("texture_diffuse1", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, rock.textures_loaded[0].id); // note: we also made the textures_loaded vector public (instead of private) from the model class.
-        for (unsigned int i = 0; i < rock.meshes.size(); i++)
-        {
-            glBindVertexArray(rock.meshes[i].VAO);
-            glDrawElementsInstanced(GL_TRIANGLES, rock.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
-            glBindVertexArray(0);
-        }
+        // TODO 03:
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

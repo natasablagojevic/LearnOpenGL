@@ -55,6 +55,7 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -85,7 +86,7 @@ int main()
 
     // generate a large list of semi-random model transformation matrices
     // ------------------------------------------------------------------
-    unsigned int amount = 1000;
+    unsigned int amount = 100000;
     glm::mat4* modelMatrices;
     modelMatrices = new glm::mat4[amount];
     srand(glfwGetTime()); // initialize random seed	
@@ -116,6 +117,7 @@ int main()
         modelMatrices[i] = model;
     }
 
+    float lastDisplayed = 0;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -125,7 +127,10 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
+        if (lastFrame - lastDisplayed > 1.0f) {
+            std::cerr << "\r\r" << deltaTime*1000 << "ms";
+            lastDisplayed = currentFrame;
+        }
         // input
         // -----
         processInput(window);
@@ -150,11 +155,7 @@ int main()
         planet.Draw(shader);
 
         // draw meteorites
-        for (unsigned int i = 0; i < amount; i++)
-        {
-            shader.setMat4("model", modelMatrices[i]);
-            rock.Draw(shader);
-        }     
+        // TODO Draw Asteriods
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
