@@ -143,6 +143,7 @@ set(4.advanced_opengl
     6.2.cubemaps_environment_mapping
     7.1.advanced_glsl_gl_pointsize
     8.advanced_glsl_ubo
+    9.0.geometry_shader_lines
     9.1.geometry_shader_houses
     9.2.geometry_shader_exploding
     9.3.geometry_shader_normals
@@ -151,6 +152,7 @@ set(4.advanced_opengl
     10.3.asteroids_instanced
     11.1.anti_aliasing_msaa
     11.2.anti_aliasing_offscreen
+    11.3.custom_anti_aliasing
 )
 
 set(5.advanced_lighting
